@@ -21,6 +21,31 @@ export const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/main/HomeView.vue"),
       },
       {
+        path: "/problem/add",
+        name: "创建题目",
+        component: () => import("@/views/problem/AddProblemView.vue"),
+        // meta: {
+        //   access: ACCESS_ENUM.ADMIN,
+        // },
+      },
+      {
+        path: "/problem/manage",
+        name: "管理题目",
+        component: () => import("@/views/problem/ManageProblemView.vue"),
+        // meta: {
+        //   access: ACCESS_ENUM.ADMIN,
+        // },
+      },
+      {
+        path: "/problem/update",
+        name: "更新题目",
+        component: () => import("@/views/problem/UpdateProblemView.vue"),
+        meta: {
+          access: ACCESS_ENUM.ADMIN,
+          hideInMenu: true,
+        },
+      },
+      {
         path: "/about",
         name: "关于",
         component: () => import("@/views/main/AboutView.vue"),
@@ -36,20 +61,21 @@ export const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
-    path: "/auth",
+    path: "/authenticate",
     name: "登录注册",
+    redirect: "/login",
     component: () => import("@/layouts/AuthLayout.vue"),
     meta: {
       hideInMenu: true,
     },
     children: [
       {
-        path: "/auth/login",
+        path: "/login",
         name: "用户登录",
         component: () => import("@/views/auth/UserLoginView.vue"),
       },
       {
-        path: "/auth/register",
+        path: "/register",
         name: "用户注册",
         component: () => import("@/views/auth/UserRegisterView.vue"),
       },

@@ -12,9 +12,8 @@ export default {
   }),
   actions: {
     async getLoginUser({ commit, state }, payload) {
-      // 从后端接口获取登录信息
+      //从后端接口获取登录信息
       const res = await UserControllerService.getLoginUserUsingGet();
-      console.log(res.data);
       if (res.code === 0) {
         commit("updateUser", res.data);
       } else {
@@ -23,6 +22,11 @@ export default {
           userRole: ACCESS_ENUM.NOT_LOGIN,
         });
       }
+      // 跳过登录
+      // commit("updateUser", {
+      //   ...state.loginUser,
+      //   userRole: ACCESS_ENUM.NOT_LOGIN,
+      // });
     },
   },
   mutations: {
