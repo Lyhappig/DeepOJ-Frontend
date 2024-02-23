@@ -18,28 +18,37 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "/problem",
         name: "题库",
-        component: () => import("@/views/main/HomeView.vue"),
+        component: () => import("@/views/problem/ProblemsView.vue"),
       },
       {
         path: "/problem/add",
         name: "创建题目",
-        component: () => import("@/views/problem/AddProblemView.vue"),
-        // meta: {
-        //   access: ACCESS_ENUM.ADMIN,
-        // },
+        component: () => import("@/views/problem/ProblemAddView.vue"),
+        meta: {
+          access: ACCESS_ENUM.ADMIN,
+        },
+      },
+      {
+        path: "/problem/:id",
+        name: "做题",
+        props: true,
+        component: () => import("@/views/problem/ProblemView.vue"),
+        meta: {
+          hideInMenu: true,
+        },
       },
       {
         path: "/problem/manage",
         name: "管理题目",
-        component: () => import("@/views/problem/ManageProblemView.vue"),
-        // meta: {
-        //   access: ACCESS_ENUM.ADMIN,
-        // },
+        component: () => import("@/views/problem/ProblemManageView.vue"),
+        meta: {
+          access: ACCESS_ENUM.ADMIN,
+        },
       },
       {
         path: "/problem/update",
         name: "更新题目",
-        component: () => import("@/views/problem/UpdateProblemView.vue"),
+        component: () => import("@/views/problem/ProblemUpdateView.vue"),
         meta: {
           access: ACCESS_ENUM.ADMIN,
           hideInMenu: true,
@@ -87,15 +96,6 @@ export const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/main/HomeView.vue"),
     meta: {
       hideInMenu: true,
-    },
-  },
-  {
-    path: "/admin",
-    name: "管理员可见",
-    component: () => import("@/views/AdminView.vue"),
-    meta: {
-      hideInMenu: true,
-      access: ACCESS_ENUM.ADMIN,
     },
   },
   {

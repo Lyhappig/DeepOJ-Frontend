@@ -1,5 +1,5 @@
 <template>
-  <div id="addProblemView">
+  <div id="problemAddView">
     <h2>创建题目</h2>
     <a-form :model="form" label-align="left" size="large">
       <a-form-item field="title" label="标题">
@@ -13,7 +13,7 @@
           mode="button"
           class="input-demo"
           :min="0"
-          :max="3000"
+          :max="4000"
           :step="100"
         />
       </a-form-item>
@@ -68,7 +68,7 @@
                 </a-col>
               </a-row>
               <a-button
-                @click="handleDelete(index)"
+                @click="handleDeleteJudgeCases(index)"
                 :style="{ marginLeft: '10px' }"
                 status="danger"
                 >删除
@@ -76,7 +76,10 @@
             </a-space>
           </a-form-item>
           <div>
-            <a-button @click="handleAdd" type="outline" status="success"
+            <a-button
+              @click="handleAddJudgeCases"
+              type="outline"
+              status="success"
               >添加样例
             </a-button>
           </div>
@@ -154,123 +157,90 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { reactive } from "vue";
 import MdEditor from "@/components/MdEditor.vue";
 import { ProblemControllerService } from "../../../generated";
 import { Message } from "@arco-design/web-vue";
 import CodeEditor from "@/components/CodeEditor.vue";
-import { useRoute } from "vue-router";
 
-const route = useRoute();
-
-let form = ref({
-  title: "",
-  difficulty: 0,
+const form = reactive({
+  title: "标题",
+  difficulty: 1000,
   // todo 标签
   problemContent: {
-    content: "",
-    inputDescription: "",
-    outputDescription: "",
+    content: "题面",
+    inputDescription: "输入描述",
+    outputDescription: "输出描述",
     samples: [
       {
-        input: "",
-        output: "",
+        input: "样例一输入",
+        output: "样例一输出",
       },
     ],
-    note: "",
+    note: "提示",
   },
   judgeConfig: {
-    timeLimit: 0, // MS
-    memoryLimit: 0, // MB
-    stackLimit: 0, // MB
-    codeLengthLimit: 0, // KB
+    timeLimit: 1000, // MS
+    memoryLimit: 256, // MB
+    stackLimit: 128, // MB
+    codeLengthLimit: 16, // KB
   },
-  answer: "",
+  answer: "题目答案",
   // todo judgeCase 文件压缩包
   judgeCases: [
     {
-      inputPath: "",
-      outputPath: "",
+      inputPath: "/home/ans1.in",
+      outputPath: "/home/ans2.out",
     },
   ],
 });
 
-const loadData = async () => {
-  const id = route.query.id;
-  if (!id) {
-    return;
-  }
-  const res = await ProblemControllerService.getProblemVoByIdUsingGet(
-    id as any
-  );
-  if (res.code === 0) {
-    form.value = res.data as any;
-    console.log("题目信息: ", form.value);
-    if (!form.value.judgeCases) {
-      form.value.judgeCases = [
-        {
-          inputPath: "",
-          outputPath: "",
-        },
-      ];
-    }
-  } else {
-    Message.error({
-      content: "加载失败, " + res.message,
-    });
-  }
-};
-
-onMounted(() => {
-  loadData();
-});
-
 const doSubmit = async () => {
-  const res = await ProblemControllerService.updateProblemUsingPost(form.value);
+  const res = await ProblemControllerService.addProblemUsingPost(form);
   if (res.code === 0) {
-    loadData();
+    console.log("成功创建题目: ", form);
     Message.success({
-      content: "更新成功",
+      content: "创建成功",
     });
   } else {
     Message.error({
-      content: "更新失败" + " " + res.message,
+      content: "创建失败" + " " + res.message,
     });
   }
 };
 
 const onContentChange = (value: string) => {
-  form.value.problemContent.content = value;
+  form.problemContent.content = value;
 };
 
 const onInputChange = (value: string) => {
-  form.value.problemContent.inputDescription = value;
+  form.problemContent.inputDescription = value;
 };
 
 const onOutputChange = (value: string) => {
-  form.value.problemContent.outputDescription = value;
+  form.problemContent.outputDescription = value;
 };
 
 const onNoteChange = (value: string) => {
-  form.value.problemContent.note = value;
+  form.problemContent.note = value;
 };
 
-const handleAdd = () => {
-  form.value.problemContent.samples.push({
+const handleAddJudgeCases = () => {
+  form.problemContent.samples.push({
     input: "",
     output: "",
   });
 };
-const handleDelete = (index: number) => {
-  form.value.problemContent.samples.splice(index, 1);
+const handleDeleteJudgeCases = (index: number) => {
+  form.problemContent.samples.splice(index, 1);
 };
 
 const onCodeChange = (value: string) => {
-  form.value.answer = value;
+  form.answer = value;
 };
 </script>
 
 <style scoped>
-#addProblemView {
+#problemAddView {
 }
 </style>

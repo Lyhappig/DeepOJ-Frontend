@@ -6,8 +6,9 @@
 export type ProblemQueryRequest = {
     contestId?: number;
     current?: number;
-    difficulty?: number;
     id?: number;
+    maxDifficulty?: number;
+    minDifficulty?: number;
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;

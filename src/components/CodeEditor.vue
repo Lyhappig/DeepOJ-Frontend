@@ -1,43 +1,66 @@
 <template>
-  <div id="code-editor" ref="domRef" style="min-height: 400px" />
-  <!--  <div style="padding-top: 24px; height: 20px">-->
-  <!--    <button @click="fillValue">修改值</button>-->
-  <!--  </div>-->
+  <div
+    id="code-editor"
+    ref="codeEditorRef"
+    style="min-height: 400px; height: 60vh"
+  />
 </template>
 
 <script setup lang="ts">
 import * as monaco from "monaco-editor";
-import { defineProps, onMounted, ref, toRaw, withDefaults } from "vue";
+import { defineProps, onMounted, ref, toRaw, watch, withDefaults } from "vue";
 
-const domRef = ref();
+const codeEditorRef = ref();
 const codeEditor = ref();
 
 interface Props {
   value: string;
+  language?: string;
   handleChange: (v: string) => void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   value: () => "",
+  language: () => "java",
   handleChange: (v: string) => {
     console.log(v);
   },
 });
 
-const fillValue = () => {
-  if (!codeEditor.value) {
-    return;
+/**
+ * 监听代码编辑器在父组件中 :value 的信息变化
+ */
+watch(
+  () => props.value,
+  (newValue) => {
+    if (codeEditor.value) {
+      const curValue = toRaw(codeEditor.value).getValue();
+      if (newValue !== curValue) {
+        toRaw(codeEditor.value).setValue(newValue);
+      }
+    }
   }
-  toRaw(codeEditor.value).setValue("新的值");
-};
+);
+
+watch(
+  () => props.language,
+  () => {
+    if (codeEditor.value) {
+      monaco.editor.setModelLanguage(
+        toRaw(codeEditor.value).getModel(),
+        props.language
+      );
+    }
+  }
+);
 
 onMounted(() => {
-  if (!domRef.value) {
+  if (!codeEditorRef.value) {
     return;
   }
-  codeEditor.value = monaco.editor.create(domRef.value, {
+  codeEditor.value = monaco.editor.create(codeEditorRef.value, {
     value: props.value,
-    language: "java",
+    language: props.language,
     automaticLayout: true,
     colorDecorators: true,
     minimap: {

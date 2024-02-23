@@ -1,17 +1,25 @@
 <template>
-  <div id="addProblemView">
+  <div id="problemManageView">
     <a-table
       :columns="columns"
       :data="dataList"
       :pagination="{
-        current: searchParams.pageNum,
+        current: searchParams.current,
         pageSize: searchParams.pageSize,
         total: Number(total),
         showTotal: true,
         showJumper: true,
         showPageSize: true,
       }"
+      @page-change="onPageChange"
+      @page-size-change="onPageSizeChange"
     >
+      <template #createTime="{ record }">
+        {{ moment(record.createTime).format("YYYY-MM-DD") }}
+      </template>
+      <template #updateTime="{ record }">
+        {{ moment(record.updateTime).format("YYYY-MM-DD") }}
+      </template>
       <template #optional="{ record }">
         <a-space>
           <a-button type="primary" @click="doUpdate(record)">修改</a-button>
@@ -23,18 +31,33 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import { Problem, ProblemControllerService } from "../../../generated";
 import { Message } from "@arco-design/web-vue";
 import { useRouter } from "vue-router";
+import moment from "moment";
 
 const total = ref(0);
 const dataList = ref([]);
 
 const searchParams = ref({
-  pageNum: 1,
+  current: 1,
   pageSize: 10,
 });
+
+const onPageChange = (page: number) => {
+  searchParams.value = {
+    ...searchParams.value,
+    current: page,
+  };
+};
+
+const onPageSizeChange = (pageSize: number) => {
+  searchParams.value = {
+    ...searchParams.value,
+    pageSize: pageSize,
+  };
+};
 
 const loadData = async () => {
   const res = await ProblemControllerService.listProblemByPageUsingPost(
@@ -43,13 +66,20 @@ const loadData = async () => {
   if (res.code === 0) {
     dataList.value = res.data.records;
     total.value = res.data.total;
-    console.log("管理题目信息: ", dataList.value);
+    // console.log("管理题目信息: ", dataList.value);
   } else {
     Message.error({
       content: "加载失败" + " " + res.message,
     });
   }
 };
+
+/**
+ * 监听 searchParams 变量，改变时触发页面的重新加载
+ */
+watchEffect(() => {
+  loadData();
+});
 
 /**
  * 页面加载时请求数据
@@ -64,7 +94,7 @@ const columns = [
     dataIndex: "id",
   },
   {
-    title: "题号",
+    title: "题目名称",
     dataIndex: "title",
   },
   {
@@ -77,15 +107,15 @@ const columns = [
   },
   {
     title: "题目内容",
-    slotName: "problemContent",
+    dataIndex: "problemContent",
   },
   {
     title: "判题用例",
-    slotName: "judgeCases",
+    dataIndex: "judgeCases",
   },
   {
     title: "答案",
-    slotName: "answer",
+    dataIndex: "answer",
   },
   {
     title: "比赛",
@@ -97,11 +127,11 @@ const columns = [
   },
   {
     title: "创建时间",
-    dataIndex: "createTime",
+    slotName: "createTime",
   },
   {
     title: "更新时间",
-    dataIndex: "updateTime",
+    slotName: "updateTime",
   },
   {
     title: "操作",
@@ -138,6 +168,6 @@ const doDelete = async (problem: Problem) => {
 </script>
 
 <style scoped>
-#addProblemView {
+#problemManageView {
 }
 </style>
